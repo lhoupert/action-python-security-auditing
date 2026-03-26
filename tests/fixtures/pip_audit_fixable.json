@@ -1,0 +1,26 @@
+[
+  {
+    "name": "requests",
+    "version": "2.28.0",
+    "vulns": [
+      {
+        "id": "GHSA-j8r2-6x86-q33q",
+        "fix_versions": ["2.31.0"],
+        "description": "Requests forwards proxy-authorization headers to destination servers when redirected, leaking sensitive information.",
+        "aliases": ["CVE-2023-32681"]
+      }
+    ]
+  },
+  {
+    "name": "cryptography",
+    "version": "41.0.0",
+    "vulns": [
+      {
+        "id": "GHSA-v8gr-m533-ghj9",
+        "fix_versions": ["41.0.4"],
+        "description": "cryptography vulnerable to NULL-dereference when loading PKCS12 files.",
+        "aliases": ["CVE-2023-49083"]
+      }
+    ]
+  }
+]

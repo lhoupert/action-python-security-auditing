@@ -1,0 +1,14 @@
+[
+  {
+    "name": "somelib",
+    "version": "1.0.0",
+    "vulns": [
+      {
+        "id": "GHSA-xxxx-yyyy-zzzz",
+        "fix_versions": [],
+        "description": "A vulnerability with no available fix.",
+        "aliases": []
+      }
+    ]
+  }
+]

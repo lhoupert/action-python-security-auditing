@@ -1,0 +1,76 @@
+name: Python Security Auditing
+description: Run bandit and pip-audit security scans on Python code and report findings
+author: Development Seed
+
+inputs:
+  tools:
+    description: Comma-separated tools to run (bandit, pip-audit)
+    default: bandit,pip-audit
+  bandit_scan_dirs:
+    description: Comma-separated directories for bandit to scan
+    default: .
+  bandit_severity_threshold:
+    description: Minimum bandit severity that blocks the job (HIGH, MEDIUM, LOW)
+    default: HIGH
+  pip_audit_block_on:
+    description: When to block on pip-audit findings — fixable, all, or none
+    default: fixable
+  package_manager:
+    description: How to resolve dependencies for pip-audit (uv, pip, poetry, pipenv, requirements)
+    default: requirements
+  requirements_file:
+    description: Path to requirements file when package_manager=requirements
+    default: requirements.txt
+  post_pr_comment:
+    description: Post or update a PR comment with the scan results
+    default: 'true'
+  github_token:
+    description: GitHub token used for posting PR comments
+    default: ${{ github.token }}
+  working_directory:
+    description: Directory to run the audit from (useful when the project is in a subdirectory)
+    default: '.'
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
+      with:
+        python-version: '3.13'
+
+    - name: Install python-security-auditing
+      shell: bash
+      run: pip install "${{ github.action_path }}"
+
+    - name: Run security audit
+      id: audit
+      shell: bash
+      continue-on-error: true
+      working-directory: ${{ inputs.working_directory }}
+      env:
+        TOOLS: ${{ inputs.tools }}
+        BANDIT_SCAN_DIRS: ${{ inputs.bandit_scan_dirs }}
+        BANDIT_SEVERITY_THRESHOLD: ${{ inputs.bandit_severity_threshold }}
+        PIP_AUDIT_BLOCK_ON: ${{ inputs.pip_audit_block_on }}
+        PACKAGE_MANAGER: ${{ inputs.package_manager }}
+        REQUIREMENTS_FILE: ${{ inputs.requirements_file }}
+        POST_PR_COMMENT: ${{ inputs.post_pr_comment }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+      run: python -m python_security_auditing
+
+    - name: Upload audit reports
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: security-audit-reports
+        path: |
+          ${{ inputs.working_directory }}/bandit-report.json
+          ${{ inputs.working_directory }}/pip-audit-report.json
+        if-no-files-found: ignore
+
+    - name: Fail if blocking issues found
+      if: steps.audit.outcome == 'failure'
+      shell: bash
+      run: exit 1

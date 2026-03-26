@@ -1,0 +1,90 @@
+"""Upsert a PR comment with security scan results using the gh CLI."""
+
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+
+from .settings import Settings
+
+COMMENT_MARKER = "<!-- security-scan-results -->"
+
+
+def resolve_pr_number(settings: Settings) -> int | None:
+    """Return a PR number from settings or by looking up the branch via gh CLI."""
+    if settings.pr_number is not None:
+        return settings.pr_number
+
+    if not settings.github_head_ref or not settings.github_repository:
+        return None
+
+    result = subprocess.run(
+        [
+            "gh",
+            "pr",
+            "list",
+            "--head",
+            settings.github_head_ref,
+            "--json",
+            "number",
+            "--repo",
+            settings.github_repository,
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+
+    prs: list[dict[str, int]] = json.loads(result.stdout)
+    return int(prs[0]["number"]) if prs else None
+
+
+def upsert_pr_comment(markdown: str, settings: Settings) -> None:
+    """Create or update the security-scan PR comment.
+
+    Skips silently if no PR is found or if posting is disabled.
+    """
+    if not settings.post_pr_comment or not settings.github_token:
+        return
+
+    pr_number = resolve_pr_number(settings)
+    if pr_number is None:
+        print("No PR found — skipping comment.", file=sys.stderr)
+        return
+
+    body = f"{COMMENT_MARKER}\n{markdown}"
+    repo = settings.github_repository
+
+    # Find an existing comment with our marker
+    existing_id: int | None = None
+    list_result = subprocess.run(
+        ["gh", "api", f"repos/{repo}/issues/{pr_number}/comments"],
+        capture_output=True,
+        text=True,
+    )
+    if list_result.returncode == 0:
+        for comment in json.loads(list_result.stdout):
+            if COMMENT_MARKER in comment.get("body", ""):
+                existing_id = int(comment["id"])
+                break
+
+    if existing_id is not None:
+        subprocess.run(
+            [
+                "gh",
+                "api",
+                "--method",
+                "PATCH",
+                f"repos/{repo}/issues/comments/{existing_id}",
+                "--field",
+                f"body={body}",
+            ],
+            check=True,
+        )
+    else:
+        subprocess.run(
+            ["gh", "pr", "comment", str(pr_number), "--body", body, "--repo", repo],
+            check=True,
+        )
