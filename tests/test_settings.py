@@ -1,7 +1,6 @@
 """Tests for settings.py — env var parsing and computed properties."""
 
 import pytest
-
 from python_security_auditing.settings import Settings
 
 

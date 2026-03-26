@@ -6,7 +6,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from python_security_auditing.report import build_markdown, check_thresholds, write_step_summary
 from python_security_auditing.settings import Settings
 
@@ -57,7 +56,9 @@ def test_bandit_high_blocks(bandit_issues: dict, pip_clean: list) -> None:  # ty
     assert check_thresholds(bandit_issues, pip_clean, s) is True
 
 
-def test_bandit_medium_does_not_block_at_high_threshold(bandit_issues: dict, pip_clean: list) -> None:  # type: ignore[type-arg]
+def test_bandit_medium_does_not_block_at_high_threshold(
+    bandit_issues: dict, pip_clean: list
+) -> None:  # type: ignore[type-arg]
     """bandit_issues has HIGH and MEDIUM; only HIGH should block when threshold=HIGH."""
     s = Settings()
     # Remove HIGH results so only MEDIUM remain
@@ -68,7 +69,9 @@ def test_bandit_medium_does_not_block_at_high_threshold(bandit_issues: dict, pip
     assert check_thresholds(medium_only, pip_clean, s) is False
 
 
-def test_bandit_medium_blocks_at_medium_threshold(bandit_issues: dict, pip_clean: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_bandit_medium_blocks_at_medium_threshold(
+    bandit_issues: dict, pip_clean: list, monkeypatch: pytest.MonkeyPatch
+) -> None:  # type: ignore[type-arg]
     monkeypatch.setenv("BANDIT_SEVERITY_THRESHOLD", "MEDIUM")
     s = Settings()
     medium_only = {
@@ -88,19 +91,25 @@ def test_pip_unfixable_does_not_block_on_fixable(bandit_clean: dict, pip_unfixab
     assert check_thresholds(bandit_clean, pip_unfixable, s) is False
 
 
-def test_pip_unfixable_blocks_on_all(bandit_clean: dict, pip_unfixable: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_pip_unfixable_blocks_on_all(
+    bandit_clean: dict, pip_unfixable: list, monkeypatch: pytest.MonkeyPatch
+) -> None:  # type: ignore[type-arg]
     monkeypatch.setenv("PIP_AUDIT_BLOCK_ON", "all")
     s = Settings()
     assert check_thresholds(bandit_clean, pip_unfixable, s) is True
 
 
-def test_pip_fixable_does_not_block_on_none(bandit_clean: dict, pip_fixable: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_pip_fixable_does_not_block_on_none(
+    bandit_clean: dict, pip_fixable: list, monkeypatch: pytest.MonkeyPatch
+) -> None:  # type: ignore[type-arg]
     monkeypatch.setenv("PIP_AUDIT_BLOCK_ON", "none")
     s = Settings()
     assert check_thresholds(bandit_clean, pip_fixable, s) is False
 
 
-def test_bandit_only_tool_skips_pip(bandit_issues: dict, pip_fixable: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_bandit_only_tool_skips_pip(
+    bandit_issues: dict, pip_fixable: list, monkeypatch: pytest.MonkeyPatch
+) -> None:  # type: ignore[type-arg]
     monkeypatch.setenv("TOOLS", "bandit")
     s = Settings()
     # pip-audit not in enabled tools, so fixable vulns should not block
@@ -109,7 +118,9 @@ def test_bandit_only_tool_skips_pip(bandit_issues: dict, pip_fixable: list, monk
     assert result is True
 
 
-def test_pip_only_tool_skips_bandit(bandit_issues: dict, pip_fixable: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_pip_only_tool_skips_bandit(
+    bandit_issues: dict, pip_fixable: list, monkeypatch: pytest.MonkeyPatch
+) -> None:  # type: ignore[type-arg]
     monkeypatch.setenv("TOOLS", "pip-audit")
     s = Settings()
     # bandit not in enabled tools, bandit HIGH issues should not block
@@ -117,7 +128,9 @@ def test_pip_only_tool_skips_bandit(bandit_issues: dict, pip_fixable: list, monk
     assert result is True  # pip-audit fixable issues do block
 
 
-def test_pip_only_no_bandit_blocking(bandit_issues: dict, pip_clean: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_pip_only_no_bandit_blocking(
+    bandit_issues: dict, pip_clean: list, monkeypatch: pytest.MonkeyPatch
+) -> None:  # type: ignore[type-arg]
     monkeypatch.setenv("TOOLS", "pip-audit")
     s = Settings()
     assert check_thresholds(bandit_issues, pip_clean, s) is False
@@ -162,7 +175,9 @@ def test_markdown_pip_table(bandit_clean: dict, pip_fixable: list) -> None:  # t
     assert "GHSA-j8r2-6x86-q33q" in md
 
 
-def test_markdown_run_url(bandit_clean: dict, pip_clean: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_markdown_run_url(
+    bandit_clean: dict, pip_clean: list, monkeypatch: pytest.MonkeyPatch
+) -> None:  # type: ignore[type-arg]
     monkeypatch.setenv("GITHUB_REPOSITORY", "org/repo")
     monkeypatch.setenv("GITHUB_RUN_ID", "999")
     s = Settings()
