@@ -4,7 +4,7 @@ import pytest
 from python_security_auditing.settings import Settings
 
 
-def test_defaults():
+def test_defaults() -> None:
     s = Settings()
     assert s.tools == "bandit,pip-audit"
     assert s.bandit_scan_dirs == "."
@@ -16,70 +16,70 @@ def test_defaults():
     assert s.github_token == ""
 
 
-def test_enabled_tools_default():
+def test_enabled_tools_default() -> None:
     s = Settings()
     assert s.enabled_tools == ["bandit", "pip-audit"]
 
 
-def test_enabled_tools_single(monkeypatch: pytest.MonkeyPatch):
+def test_enabled_tools_single(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("TOOLS", "bandit")
     s = Settings()
     assert s.enabled_tools == ["bandit"]
 
 
-def test_enabled_tools_custom(monkeypatch: pytest.MonkeyPatch):
+def test_enabled_tools_custom(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("TOOLS", "pip-audit")
     s = Settings()
     assert s.enabled_tools == ["pip-audit"]
 
 
-def test_enabled_tools_whitespace(monkeypatch: pytest.MonkeyPatch):
+def test_enabled_tools_whitespace(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("TOOLS", " bandit , pip-audit ")
     s = Settings()
     assert s.enabled_tools == ["bandit", "pip-audit"]
 
 
-def test_scan_directories_default():
+def test_scan_directories_default() -> None:
     s = Settings()
     assert s.scan_directories == ["."]
 
 
-def test_scan_directories_multiple(monkeypatch: pytest.MonkeyPatch):
+def test_scan_directories_multiple(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("BANDIT_SCAN_DIRS", "src/,scripts/")
     s = Settings()
     assert s.scan_directories == ["src/", "scripts/"]
 
 
-def test_blocking_severities_high():
+def test_blocking_severities_high() -> None:
     s = Settings()
     assert s.blocking_severities == ["HIGH"]
 
 
-def test_blocking_severities_medium(monkeypatch: pytest.MonkeyPatch):
+def test_blocking_severities_medium(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("BANDIT_SEVERITY_THRESHOLD", "MEDIUM")
     s = Settings()
     assert s.blocking_severities == ["MEDIUM", "HIGH"]
 
 
-def test_blocking_severities_low(monkeypatch: pytest.MonkeyPatch):
+def test_blocking_severities_low(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("BANDIT_SEVERITY_THRESHOLD", "LOW")
     s = Settings()
     assert s.blocking_severities == ["LOW", "MEDIUM", "HIGH"]
 
 
-def test_pr_number_from_env(monkeypatch: pytest.MonkeyPatch):
+def test_pr_number_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("PR_NUMBER", "42")
     s = Settings()
     assert s.pr_number == 42
 
 
-def test_post_pr_comment_false(monkeypatch: pytest.MonkeyPatch):
+def test_post_pr_comment_false(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("POST_PR_COMMENT", "false")
     s = Settings()
     assert s.post_pr_comment is False
 
 
-def test_github_context(monkeypatch: pytest.MonkeyPatch):
+def test_github_context(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GITHUB_REPOSITORY", "org/repo")
     monkeypatch.setenv("GITHUB_RUN_ID", "12345")
     monkeypatch.setenv("GITHUB_EVENT_NAME", "pull_request")

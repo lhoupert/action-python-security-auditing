@@ -76,7 +76,7 @@ def run_bandit(scan_dirs: list[str]) -> dict[str, Any]:
         )
 
     if output_file.exists():
-        return dict(json.loads(output_file.read_text()))  # type: ignore[arg-type]
+        return dict(json.loads(output_file.read_text()))
     return {"results": [], "errors": []}
 
 
