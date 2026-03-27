@@ -72,8 +72,8 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: developmentseed/python-security-auditing@v1
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: developmentseed/python-security-auditing@78fde899ecb5148e5e3343d534e5bf6bd4e7b035 # v0.2.0
 ```
 
 This runs both bandit and pip-audit with sensible defaults: blocks the job on HIGH-severity code issues and on dependency vulnerabilities that have a fix available.
@@ -83,7 +83,7 @@ This runs both bandit and pip-audit with sensible defaults: blocks the job on HI
 ### uv project
 
 ```yaml
-- uses: developmentseed/python-security-auditing@v1
+- uses: developmentseed/python-security-auditing@78fde899ecb5148e5e3343d534e5bf6bd4e7b035 # v0.2.0
   with:
     package_manager: uv
     bandit_scan_dirs: 'src/'
@@ -94,7 +94,7 @@ This runs both bandit and pip-audit with sensible defaults: blocks the job on HI
 Block on any bandit finding at MEDIUM or above, and on all known vulnerabilities regardless of whether a fix exists:
 
 ```yaml
-- uses: developmentseed/python-security-auditing@v1
+- uses: developmentseed/python-security-auditing@78fde899ecb5148e5e3343d534e5bf6bd4e7b035 # v0.2.0
   with:
     package_manager: poetry
     bandit_severity_threshold: medium
@@ -106,7 +106,7 @@ Block on any bandit finding at MEDIUM or above, and on all known vulnerabilities
 Useful when you manage dependencies externally or run pip-audit in a separate job:
 
 ```yaml
-- uses: developmentseed/python-security-auditing@v1
+- uses: developmentseed/python-security-auditing@78fde899ecb5148e5e3343d534e5bf6bd4e7b035 # v0.2.0
   with:
     tools: bandit
     bandit_scan_dirs: 'src/'
@@ -115,7 +115,7 @@ Useful when you manage dependencies externally or run pip-audit in a separate jo
 ### Project in a subdirectory (monorepo)
 
 ```yaml
-- uses: developmentseed/python-security-auditing@v1
+- uses: developmentseed/python-security-auditing@78fde899ecb5148e5e3343d534e5bf6bd4e7b035 # v0.2.0
   with:
     working_directory: services/api
     package_manager: uv
@@ -127,7 +127,7 @@ Useful when you manage dependencies externally or run pip-audit in a separate jo
 Run the audit and post the comment for visibility, but don't fail CI:
 
 ```yaml
-- uses: developmentseed/python-security-auditing@v1
+- uses: developmentseed/python-security-auditing@78fde899ecb5148e5e3343d534e5bf6bd4e7b035 # v0.2.0
   with:
     bandit_severity_threshold: low   # report everything
     pip_audit_block_on: none         # never block
