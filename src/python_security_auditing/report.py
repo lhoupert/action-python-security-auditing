@@ -49,10 +49,7 @@ def _bandit_section(report: dict[str, Any], settings: Settings) -> str:
         lines.append("✅ No issues found.\n")
         return "\n".join(lines)
 
-    lines.append(
-        "| Severity | Confidence | File | Line | Issue |\n"
-        "|---|---|---|---|---|\n"
-    )
+    lines.append("| Severity | Confidence | File | Line | Issue |\n" "|---|---|---|---|---|\n")
     for r in results:
         sev = r.get("issue_severity", "")
         conf = r.get("issue_confidence", "")
@@ -82,8 +79,7 @@ def _pip_audit_section(report: list[dict[str, Any]], settings: Settings) -> str:
         return "\n".join(lines)
 
     lines.append(
-        "| Package | Version | ID | Fix Versions | Description |\n"
-        "|---|---|---|---|---|\n"
+        "| Package | Version | ID | Fix Versions | Description |\n" "|---|---|---|---|---|\n"
     )
     for pkg in vulnerable:
         name = pkg.get("name", "")
@@ -95,12 +91,7 @@ def _pip_audit_section(report: list[dict[str, Any]], settings: Settings) -> str:
             lines.append(f"| {name} | {version} | {vid} | {fix_versions} | {desc} |")
 
     total_vulns = sum(len(pkg.get("vulns", [])) for pkg in vulnerable)
-    fixable = sum(
-        1
-        for pkg in vulnerable
-        for v in pkg.get("vulns", [])
-        if v.get("fix_versions")
-    )
+    fixable = sum(1 for pkg in vulnerable for v in pkg.get("vulns", []) if v.get("fix_versions"))
     lines.append(
         f"\n_{total_vulns} vulnerability/vulnerabilities found "
         f"({fixable} fixable) across {len(vulnerable)} package(s)._\n"

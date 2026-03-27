@@ -4,42 +4,42 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
-
 from python_security_auditing.report import build_markdown, check_thresholds, write_step_summary
 from python_security_auditing.settings import Settings
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
-def load(name: str) -> object:
+def load(name: str) -> Any:
     return json.loads((FIXTURES / name).read_text())
 
 
 @pytest.fixture()
-def bandit_clean() -> dict:  # type: ignore[type-arg]
-    return load("bandit_clean.json")  # type: ignore[return-value]
+def bandit_clean() -> dict[str, Any]:
+    return cast(dict[str, Any], load("bandit_clean.json"))
 
 
 @pytest.fixture()
-def bandit_issues() -> dict:  # type: ignore[type-arg]
-    return load("bandit_issues.json")  # type: ignore[return-value]
+def bandit_issues() -> dict[str, Any]:
+    return cast(dict[str, Any], load("bandit_issues.json"))
 
 
 @pytest.fixture()
-def pip_clean() -> list:  # type: ignore[type-arg]
-    return load("pip_audit_clean.json")  # type: ignore[return-value]
+def pip_clean() -> list[Any]:
+    return cast(list[Any], load("pip_audit_clean.json"))
 
 
 @pytest.fixture()
-def pip_fixable() -> list:  # type: ignore[type-arg]
-    return load("pip_audit_fixable.json")  # type: ignore[return-value]
+def pip_fixable() -> list[Any]:
+    return cast(list[Any], load("pip_audit_fixable.json"))
 
 
 @pytest.fixture()
-def pip_unfixable() -> list:  # type: ignore[type-arg]
-    return load("pip_audit_unfixable.json")  # type: ignore[return-value]
+def pip_unfixable() -> list[Any]:
+    return cast(list[Any], load("pip_audit_unfixable.json"))
 
 
 # ---------------------------------------------------------------------------
@@ -47,17 +47,19 @@ def pip_unfixable() -> list:  # type: ignore[type-arg]
 # ---------------------------------------------------------------------------
 
 
-def test_clean_no_blocking(bandit_clean: dict, pip_clean: list) -> None:  # type: ignore[type-arg]
+def test_clean_no_blocking(bandit_clean: dict[str, Any], pip_clean: list[Any]) -> None:
     s = Settings()
     assert check_thresholds(bandit_clean, pip_clean, s) is False
 
 
-def test_bandit_high_blocks(bandit_issues: dict, pip_clean: list) -> None:  # type: ignore[type-arg]
+def test_bandit_high_blocks(bandit_issues: dict[str, Any], pip_clean: list[Any]) -> None:
     s = Settings()  # threshold=HIGH
     assert check_thresholds(bandit_issues, pip_clean, s) is True
 
 
-def test_bandit_medium_does_not_block_at_high_threshold(bandit_issues: dict, pip_clean: list) -> None:  # type: ignore[type-arg]
+def test_bandit_medium_does_not_block_at_high_threshold(
+    bandit_issues: dict[str, Any], pip_clean: list[Any]
+) -> None:
     """bandit_issues has HIGH and MEDIUM; only HIGH should block when threshold=HIGH."""
     s = Settings()
     # Remove HIGH results so only MEDIUM remain
@@ -68,7 +70,9 @@ def test_bandit_medium_does_not_block_at_high_threshold(bandit_issues: dict, pip
     assert check_thresholds(medium_only, pip_clean, s) is False
 
 
-def test_bandit_medium_blocks_at_medium_threshold(bandit_issues: dict, pip_clean: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_bandit_medium_blocks_at_medium_threshold(
+    bandit_issues: dict[str, Any], pip_clean: list[Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("BANDIT_SEVERITY_THRESHOLD", "MEDIUM")
     s = Settings()
     medium_only = {
@@ -78,29 +82,39 @@ def test_bandit_medium_blocks_at_medium_threshold(bandit_issues: dict, pip_clean
     assert check_thresholds(medium_only, pip_clean, s) is True
 
 
-def test_pip_fixable_blocks_by_default(bandit_clean: dict, pip_fixable: list) -> None:  # type: ignore[type-arg]
+def test_pip_fixable_blocks_by_default(
+    bandit_clean: dict[str, Any], pip_fixable: list[Any]
+) -> None:
     s = Settings()  # pip_audit_block_on=fixable
     assert check_thresholds(bandit_clean, pip_fixable, s) is True
 
 
-def test_pip_unfixable_does_not_block_on_fixable(bandit_clean: dict, pip_unfixable: list) -> None:  # type: ignore[type-arg]
+def test_pip_unfixable_does_not_block_on_fixable(
+    bandit_clean: dict[str, Any], pip_unfixable: list[Any]
+) -> None:
     s = Settings()  # pip_audit_block_on=fixable
     assert check_thresholds(bandit_clean, pip_unfixable, s) is False
 
 
-def test_pip_unfixable_blocks_on_all(bandit_clean: dict, pip_unfixable: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_pip_unfixable_blocks_on_all(
+    bandit_clean: dict[str, Any], pip_unfixable: list[Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("PIP_AUDIT_BLOCK_ON", "all")
     s = Settings()
     assert check_thresholds(bandit_clean, pip_unfixable, s) is True
 
 
-def test_pip_fixable_does_not_block_on_none(bandit_clean: dict, pip_fixable: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_pip_fixable_does_not_block_on_none(
+    bandit_clean: dict[str, Any], pip_fixable: list[Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("PIP_AUDIT_BLOCK_ON", "none")
     s = Settings()
     assert check_thresholds(bandit_clean, pip_fixable, s) is False
 
 
-def test_bandit_only_tool_skips_pip(bandit_issues: dict, pip_fixable: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_bandit_only_tool_skips_pip(
+    bandit_issues: dict[str, Any], pip_fixable: list[Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("TOOLS", "bandit")
     s = Settings()
     # pip-audit not in enabled tools, so fixable vulns should not block
@@ -109,7 +123,9 @@ def test_bandit_only_tool_skips_pip(bandit_issues: dict, pip_fixable: list, monk
     assert result is True
 
 
-def test_pip_only_tool_skips_bandit(bandit_issues: dict, pip_fixable: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_pip_only_tool_skips_bandit(
+    bandit_issues: dict[str, Any], pip_fixable: list[Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("TOOLS", "pip-audit")
     s = Settings()
     # bandit not in enabled tools, bandit HIGH issues should not block
@@ -117,7 +133,9 @@ def test_pip_only_tool_skips_bandit(bandit_issues: dict, pip_fixable: list, monk
     assert result is True  # pip-audit fixable issues do block
 
 
-def test_pip_only_no_bandit_blocking(bandit_issues: dict, pip_clean: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_pip_only_no_bandit_blocking(
+    bandit_issues: dict[str, Any], pip_clean: list[Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("TOOLS", "pip-audit")
     s = Settings()
     assert check_thresholds(bandit_issues, pip_clean, s) is False
@@ -128,41 +146,43 @@ def test_pip_only_no_bandit_blocking(bandit_issues: dict, pip_clean: list, monke
 # ---------------------------------------------------------------------------
 
 
-def test_markdown_contains_header(bandit_clean: dict, pip_clean: list) -> None:  # type: ignore[type-arg]
+def test_markdown_contains_header(bandit_clean: dict[str, Any], pip_clean: list[Any]) -> None:
     s = Settings()
     md = build_markdown(bandit_clean, pip_clean, s)
     assert "# Security Audit Report" in md
 
 
-def test_markdown_clean_result(bandit_clean: dict, pip_clean: list) -> None:  # type: ignore[type-arg]
+def test_markdown_clean_result(bandit_clean: dict[str, Any], pip_clean: list[Any]) -> None:
     s = Settings()
     md = build_markdown(bandit_clean, pip_clean, s)
     assert "No blocking issues found" in md
     assert "✅" in md
 
 
-def test_markdown_blocking_result(bandit_issues: dict, pip_clean: list) -> None:  # type: ignore[type-arg]
+def test_markdown_blocking_result(bandit_issues: dict[str, Any], pip_clean: list[Any]) -> None:
     s = Settings()
     md = build_markdown(bandit_issues, pip_clean, s)
     assert "Blocking issues found" in md
     assert "❌" in md
 
 
-def test_markdown_bandit_table(bandit_issues: dict, pip_clean: list) -> None:  # type: ignore[type-arg]
+def test_markdown_bandit_table(bandit_issues: dict[str, Any], pip_clean: list[Any]) -> None:
     s = Settings()
     md = build_markdown(bandit_issues, pip_clean, s)
     assert "B404" in md
     assert "src/app.py" in md
 
 
-def test_markdown_pip_table(bandit_clean: dict, pip_fixable: list) -> None:  # type: ignore[type-arg]
+def test_markdown_pip_table(bandit_clean: dict[str, Any], pip_fixable: list[Any]) -> None:
     s = Settings()
     md = build_markdown(bandit_clean, pip_fixable, s)
     assert "requests" in md
     assert "GHSA-j8r2-6x86-q33q" in md
 
 
-def test_markdown_run_url(bandit_clean: dict, pip_clean: list, monkeypatch: pytest.MonkeyPatch) -> None:  # type: ignore[type-arg]
+def test_markdown_run_url(
+    bandit_clean: dict[str, Any], pip_clean: list[Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("GITHUB_REPOSITORY", "org/repo")
     monkeypatch.setenv("GITHUB_RUN_ID", "999")
     s = Settings()

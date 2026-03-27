@@ -7,7 +7,6 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from python_security_auditing.runners import generate_requirements, run_bandit, run_pip_audit
 from python_security_auditing.settings import Settings
 
@@ -103,7 +102,9 @@ def test_run_bandit_parses_json(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
     assert report["results"][0]["issue_severity"] == "HIGH"
 
 
-def test_run_bandit_returns_empty_on_missing_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_run_bandit_returns_empty_on_missing_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.chdir(tmp_path)
 
     with patch("python_security_auditing.runners.subprocess.run") as mock_run:
@@ -146,7 +147,9 @@ def test_run_pip_audit_parses_json(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     assert (tmp_path / "pip-audit-report.json").exists()
 
 
-def test_run_pip_audit_returns_empty_on_no_output(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_run_pip_audit_returns_empty_on_no_output(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.chdir(tmp_path)
 
     with patch("python_security_auditing.runners.subprocess.run") as mock_run:
@@ -156,7 +159,9 @@ def test_run_pip_audit_returns_empty_on_no_output(tmp_path: Path, monkeypatch: p
     assert report == []
 
 
-def test_run_pip_audit_uses_requirements_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_run_pip_audit_uses_requirements_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.chdir(tmp_path)
     req_path = tmp_path / "custom-reqs.txt"
 

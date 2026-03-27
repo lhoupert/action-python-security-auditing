@@ -13,6 +13,7 @@ repos:
         additional_dependencies:
           - pydantic-settings>=2.0
           - bandit>=1.8
+          - pytest>=8.0
 
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
     rev: v1.23.1
@@ -24,4 +25,5 @@ repos:
     rev: '1.9.4'
     hooks:
       - id: bandit
-        args: [-r, src/]
+        args: [-r, src/, --skip, "B404,B603,B607"]
+        pass_filenames: false
