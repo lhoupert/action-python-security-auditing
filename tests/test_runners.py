@@ -156,6 +156,7 @@ def test_run_pip_audit_parses_json(tmp_path: Path, monkeypatch: pytest.MonkeyPat
         mock_run.return_value = MagicMock(returncode=1, stderr="", stdout=fixture_text)
         report = run_pip_audit(Path("requirements.txt"))
 
+    assert isinstance(report, list)
     assert len(report) == 2
     assert report[0]["name"] == "requests"
     assert (tmp_path / "pip-audit-report.json").exists()
