@@ -45,5 +45,12 @@ jobs:
             README.md
           git add README.md
           git diff --cached --quiet && echo "README unchanged, skipping commit" && exit 0
-          git commit -m "chore: pin README to ${{ steps.release.outputs.tag_name }} [skip ci]"
-          git push origin HEAD:main
+          BRANCH="chore/pin-readme-${{ steps.release.outputs.tag_name }}"
+          git checkout -b "$BRANCH"
+          git commit -m "chore: pin README to ${{ steps.release.outputs.tag_name }}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "chore: pin README to ${{ steps.release.outputs.tag_name }}" \
+            --body "Automated: pin README SHA references to release ${{ steps.release.outputs.tag_name }}." \
+            --base main \
+            --head "$BRANCH"
