@@ -54,4 +54,3 @@ jobs:
             --body "Automated: pin README SHA references to release ${{ steps.release.outputs.tag_name }}." \
             --base main \
             --head "$BRANCH"
-          gh pr merge --auto --squash "$BRANCH"
