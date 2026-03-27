@@ -40,6 +40,12 @@ def generate_requirements(settings: Settings) -> Path:
         out_path.write_text(result.stdout)
     elif pm == "poetry":
         subprocess.run(
+            ["poetry", "self", "add", "poetry-plugin-export"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        subprocess.run(
             [
                 "poetry",
                 "export",
