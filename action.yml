@@ -41,10 +41,10 @@ runs:
     #     targets: ${{ inputs.bandit_scan_dirs }}
     #     level: ${{ inputs.bandit_severity_threshold }}
 
-    - name: Set up Python
-      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
-      with:
-        python-version: '3.13'
+    # - name: Set up Python
+    #   uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+    #   with:
+    #     python-version: '3.13'
 
     - name: Install python-security-auditing
       shell: bash
