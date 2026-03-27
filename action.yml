@@ -41,14 +41,10 @@ runs:
         targets: ${{ inputs.bandit_scan_dirs }}
         level: ${{ inputs.bandit_severity_threshold }}
 
-    - name: Set up Python
-      uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
+    - name: Set up uv
+      uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
       with:
         python-version: '3.13'
-
-    - name: Install python-security-auditing
-      shell: bash
-      run: pip install "${{ github.action_path }}"
 
     - name: Run security audit
       id: audit
@@ -65,11 +61,11 @@ runs:
         POST_PR_COMMENT: ${{ inputs.post_pr_comment }}
         GITHUB_TOKEN: ${{ inputs.github_token }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
-      run: python -m python_security_auditing
+      run: uv run --with "${{ github.action_path }}" python -m python_security_auditing
 
     - name: Upload audit reports
       if: always()
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       with:
         name: security-audit-reports
         path: |
