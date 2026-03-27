@@ -18,7 +18,9 @@ jobs:
       - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
         with:
           python-version: '3.13'
-      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+      - run: pip install pre-commit                                                                                                                                                                                                
+      - run: pre-commit run --all-files --show-diff-on-failure --color=always
+  
 
   test:
     runs-on: ubuntu-latest
@@ -59,6 +61,6 @@ jobs:
           persist-credentials: false
       - uses: ./
         with:
-          tools: pip-audit
+          bandit_scan_dirs: src
           package_manager: uv
           post_pr_comment: ${{ github.event_name == 'pull_request' }}

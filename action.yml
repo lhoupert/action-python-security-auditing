@@ -34,17 +34,17 @@ inputs:
 runs:
   using: composite
   steps:
-    # - name: Run Bandit (static security analysis)
-    #   if: contains(inputs.tools, 'bandit')
-    #   uses: lhoupert/bandit-action@18022d5292d04b21fae1bfa44597b94402ba7365
-    #   with:
-    #     targets: ${{ inputs.bandit_scan_dirs }}
-    #     level: ${{ inputs.bandit_severity_threshold }}
+    - name: Run Bandit (static security analysis)
+      if: contains(inputs.tools, 'bandit')
+      uses: lhoupert/bandit-action@18022d5292d04b21fae1bfa44597b94402ba7365
+      with:
+        targets: ${{ inputs.bandit_scan_dirs }}
+        level: ${{ inputs.bandit_severity_threshold }}
 
-    # - name: Set up Python
-    #   uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
-    #   with:
-    #     python-version: '3.13'
+    - name: Set up Python
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+      with:
+        python-version: '3.13'
 
     - name: Install python-security-auditing
       shell: bash
@@ -67,14 +67,14 @@ runs:
         PR_NUMBER: ${{ github.event.pull_request.number }}
       run: python -m python_security_auditing
 
-    # - name: Upload audit reports
-    #   if: always()
-    #   uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
-    #   with:
-    #     name: security-audit-reports
-    #     path: |
-    #       ${{ inputs.working_directory }}/pip-audit-report.json
-    #     if-no-files-found: ignore
+    - name: Upload audit reports
+      if: always()
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+      with:
+        name: security-audit-reports
+        path: |
+          ${{ inputs.working_directory }}/pip-audit-report.json
+        if-no-files-found: ignore
 
     - name: Fail if blocking issues found
       if: steps.audit.outcome == 'failure'
