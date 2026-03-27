@@ -30,6 +30,9 @@ inputs:
   working_directory:
     description: Directory to run the audit from (useful when the project is in a subdirectory)
     default: '.'
+  artifact_name:
+    description: Name of the artifact uploaded by the action
+    default: security-audit-reports
 
 runs:
   using: composite
@@ -84,13 +87,14 @@ runs:
         PR_NUMBER: ${{ github.event.pull_request.number }}
       run: uv run --no-project --with "${{ github.action_path }}" python -m python_security_auditing
 
-    - name: Upload audit reports
+    - name: Upload ${{ inputs.artifact_name }}
       if: always()
       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
       with:
-        name: security-audit-reports
+        name: ${{ inputs.artifact_name }}
         path: |
           ${{ inputs.working_directory }}/pip-audit-report.json
+          ${{ github.workspace }}/results.sarif
         if-no-files-found: ignore
 
     - name: Fail if blocking issues found

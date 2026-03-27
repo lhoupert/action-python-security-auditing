@@ -168,12 +168,13 @@ The job fails (non-zero exit) when **either** tool finds issues above its config
 | `working_directory` | `.` | Directory to run the audit from (useful for monorepos) |
 | `post_pr_comment` | `true` | Post/update a PR comment with scan results |
 | `github_token` | `${{ github.token }}` | Token used for posting PR comments |
+| `artifact_name` | `security-audit-reports` | Name of the uploaded artifact |
 
 ## Outputs
 
 - **PR comment** — created on first run, updated in place on every subsequent run (keyed on a hidden `<!-- security-scan-results -->` marker).
 - **Step summary** — the same report is written to the workflow run summary, visible under the "Summary" tab.
-- **Artifact** — `pip-audit-report.json` uploaded as `security-audit-reports` for download or downstream steps.
+- **Artifact** — `pip-audit-report.json` and `results.sarif` uploaded under the name set by `artifact_name` (default: `security-audit-reports`) for download or downstream steps.
 - **Exit code** — non-zero when blocking issues are found, so the job fails and branch protections can enforce it.
 
 ## Development
