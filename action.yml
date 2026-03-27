@@ -62,7 +62,7 @@ runs:
         POST_PR_COMMENT: ${{ inputs.post_pr_comment }}
         GITHUB_TOKEN: ${{ inputs.github_token }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
-      run: uv run --with "${{ github.action_path }}" python -m python_security_auditing
+      run: uv run --no-project --with "${{ github.action_path }}" python -m python_security_auditing
 
     - name: Upload audit reports
       if: always()

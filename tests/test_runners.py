@@ -63,9 +63,12 @@ def test_poetry_mode_calls_poetry_export(monkeypatch: pytest.MonkeyPatch) -> Non
         mock_run.return_value = MagicMock(returncode=0)
         result = generate_requirements(s)
 
-    cmd = mock_run.call_args[0][0]
-    assert cmd[0] == "poetry"
-    assert "export" in cmd
+    assert mock_run.call_count == 2
+    plugin_cmd = mock_run.call_args_list[0][0][0]
+    assert plugin_cmd == ["poetry", "self", "add", "poetry-plugin-export"]
+    export_cmd = mock_run.call_args_list[1][0][0]
+    assert export_cmd[0] == "poetry"
+    assert "export" in export_cmd
     assert str(result).endswith("-requirements.txt")
 
 
