@@ -173,6 +173,15 @@ def test_markdown_bandit_table(bandit_issues: dict[str, Any], pip_clean: list[An
     assert "src/app.py" in md
 
 
+def test_markdown_below_threshold_summary(
+    bandit_issues: dict[str, Any], pip_clean: list[Any]
+) -> None:
+    """With threshold=HIGH, MEDIUM findings appear as below-threshold note."""
+    s = Settings()
+    md = build_markdown(bandit_issues, pip_clean, s)
+    assert "1 medium issue(s) below threshold not shown in table." in md
+
+
 def test_markdown_pip_table(bandit_clean: dict[str, Any], pip_fixable: list[Any]) -> None:
     s = Settings()
     md = build_markdown(bandit_clean, pip_fixable, s)

@@ -63,7 +63,6 @@ runs:
       uses: lhoupert/bandit-action@18022d5292d04b21fae1bfa44597b94402ba7365
       with:
         targets: ${{ steps.resolve-targets.outputs.targets }}
-        severity: ${{ inputs.bandit_severity_threshold }}
 
     - name: Set up uv
       uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
