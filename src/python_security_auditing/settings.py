@@ -17,6 +17,14 @@ class Settings(BaseSettings):
     input_debug: bool = False
     runner_debug: bool = False
 
+    @field_validator("runner_debug", mode="before")
+    @classmethod
+    def _runner_debug_from_int(cls, v: object) -> object:
+        # GitHub sets RUNNER_DEBUG="1" when enabled; it may also be "" when not set
+        if v == "" or v == "0":
+            return False
+        return v
+
     @property
     def debug(self) -> bool:
         return self.input_debug or self.runner_debug
