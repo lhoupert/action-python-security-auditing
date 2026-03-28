@@ -15,15 +15,35 @@ from .settings import Settings
 def main() -> None:
     settings = Settings()
 
+    if settings.debug:
+        print(f"[debug] settings: {settings.model_dump()}", file=sys.stderr)
+
     bandit_report: dict[str, Any] = {}
     pip_audit_report: list[dict[str, Any]] = []
 
     if "bandit" in settings.enabled_tools:
+        if settings.debug:
+            print(
+                f"[debug] reading bandit SARIF from {settings.bandit_sarif_path}", file=sys.stderr
+            )
         bandit_report = read_bandit_sarif(Path(settings.bandit_sarif_path))
+        if settings.debug:
+            print(
+                f"[debug] bandit findings: {len(bandit_report.get('results', []))}", file=sys.stderr
+            )
 
     if "pip-audit" in settings.enabled_tools:
+        if settings.debug:
+            print(
+                f"[debug] generating requirements for package_manager={settings.package_manager}",
+                file=sys.stderr,
+            )
         requirements_path = generate_requirements(settings)
-        pip_audit_report = run_pip_audit(requirements_path)
+        if settings.debug:
+            print(f"[debug] running pip-audit on {requirements_path}", file=sys.stderr)
+        pip_audit_report = run_pip_audit(requirements_path, settings)
+        if settings.debug:
+            print(f"[debug] pip-audit findings: {len(pip_audit_report)}", file=sys.stderr)
 
     markdown = build_markdown(bandit_report, pip_audit_report, settings)
     write_step_summary(markdown, settings)

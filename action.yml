@@ -33,6 +33,9 @@ inputs:
   artifact_name:
     description: Name of the artifact uploaded by the action
     default: security-audit-reports
+  debug:
+    description: Enable debug logging for the Python audit module
+    default: 'false'
 
 runs:
   using: composite
@@ -52,7 +55,7 @@ runs:
           IFS=',' read -ra parts <<< "$BANDIT_SCAN_DIRS"
           for part in "${parts[@]}"; do
             [[ "$part" == "." ]] && t="$WORKING_DIRECTORY" || t="$WORKING_DIRECTORY/$part"
-            resolved="${resolved:+$resolved,}$t"
+            resolved="${resolved:+$resolved }$t"
           done
           echo "targets=$resolved" >> "$GITHUB_OUTPUT"
         fi
@@ -84,6 +87,8 @@ runs:
         POST_PR_COMMENT: ${{ inputs.post_pr_comment }}
         GITHUB_TOKEN: ${{ inputs.github_token }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
+        INPUT_DEBUG: ${{ inputs.debug }}
+        RUNNER_DEBUG: ${{ runner.debug }}
       run: uv run --no-project --with "${{ github.action_path }}" python -m python_security_auditing
 
     - name: Upload ${{ inputs.artifact_name }}

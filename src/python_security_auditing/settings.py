@@ -13,6 +13,14 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(case_sensitive=False)
 
+    # Debug mode — enabled via INPUT_DEBUG=true or RUNNER_DEBUG=1 (GitHub re-run with debug logging)
+    input_debug: bool = False
+    runner_debug: bool = False
+
+    @property
+    def debug(self) -> bool:
+        return self.input_debug or self.runner_debug
+
     # Tool selection
     tools: str = "bandit,pip-audit"
 

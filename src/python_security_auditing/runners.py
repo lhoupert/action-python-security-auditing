@@ -29,15 +29,25 @@ def generate_requirements(settings: Settings) -> Path:
     out_path = Path(tmp.name)
 
     if pm == "uv":
+        cmd = ["uv", "export", "--format", "requirements-txt", "--no-hashes", "-o", str(out_path)]
+        if settings.debug:
+            print(f"[debug] uv export command: {cmd}", file=sys.stderr)
         subprocess.run(
-            ["uv", "export", "--format", "requirements-txt", "--no-hashes", "-o", str(out_path)],
+            cmd,
             check=True,
             capture_output=True,
             text=True,
         )
+        if settings.debug:
+            print(
+                f"[debug] generated requirements ({out_path}):\n{out_path.read_text()}",
+                file=sys.stderr,
+            )
     elif pm == "pip":
         result = subprocess.run(["pip", "freeze"], capture_output=True, text=True, check=True)
         out_path.write_text(result.stdout)
+        if settings.debug:
+            print(f"[debug] pip freeze output ({out_path}):\n{result.stdout}", file=sys.stderr)
     elif pm == "poetry":
         subprocess.run(
             ["poetry", "self", "add", "poetry-plugin-export"],
@@ -59,11 +69,21 @@ def generate_requirements(settings: Settings) -> Path:
             capture_output=True,
             text=True,
         )
+        if settings.debug:
+            print(
+                f"[debug] poetry export output ({out_path}):\n{out_path.read_text()}",
+                file=sys.stderr,
+            )
     elif pm == "pipenv":
         result = subprocess.run(
             ["pipenv", "requirements"], capture_output=True, text=True, check=True
         )
         out_path.write_text(result.stdout)
+        if settings.debug:
+            print(
+                f"[debug] pipenv requirements output ({out_path}):\n{result.stdout}",
+                file=sys.stderr,
+            )
 
     return out_path
 
@@ -110,16 +130,28 @@ def read_bandit_sarif(sarif_path: Path) -> dict[str, Any]:
     return {"results": results, "errors": []}
 
 
-def run_pip_audit(requirements_path: Path) -> list[dict[str, Any]]:
+def run_pip_audit(
+    requirements_path: Path, settings: Settings | None = None
+) -> list[dict[str, Any]]:
     """Run pip-audit, write pip-audit-report.json, return parsed report."""
     output_file = Path("pip-audit-report.json")
     cmd = ["pip-audit", "-r", str(requirements_path), "-f", "json"]
+
+    if settings and settings.debug:
+        print(f"[debug] pip-audit command: {cmd}", file=sys.stderr)
 
     result = subprocess.run(cmd, capture_output=True, text=True)
     # pip-audit exits 1 when vulnerabilities are found — that is expected
     if result.returncode not in (0, 1):
         print(
             f"pip-audit exited with unexpected code {result.returncode}:\n{result.stderr}",
+            file=sys.stderr,
+        )
+
+    if settings and settings.debug:
+        print(
+            f"[debug] pip-audit exit={result.returncode} "
+            f"stdout_len={len(result.stdout)} stderr={result.stderr!r}",
             file=sys.stderr,
         )
 
