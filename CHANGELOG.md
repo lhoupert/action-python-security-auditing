@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/lhoupert/action-python-security-auditing/compare/v0.4.1...v0.4.2) (2026-03-28)
+
+
+### Bug Fixes
+
+* fix inconsistencies ([#33](https://github.com/lhoupert/action-python-security-auditing/issues/33)) ([3c796ff](https://github.com/lhoupert/action-python-security-auditing/commit/3c796ff9399a22215ac0da94f0dc05d8f92e66a2))
+
 ## [0.4.1](https://github.com/lhoupert/action-python-security-auditing/compare/v0.4.0...v0.4.1) (2026-03-28)
 
 
